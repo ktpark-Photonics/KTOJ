@@ -1,4 +1,5 @@
 import markdown as md
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -6,10 +7,21 @@ from pathlib import Path
 from sqlalchemy import select
 
 from app.db.models import Problem, Submission
-from app.db.session import SessionLocal
+from app.db.session import SessionLocal, init_db
+from app.judge.background import start_inprocess_worker
 from app.judge.languages import LANGUAGES
 
-app = FastAPI(title="KTOJ")
+
+@asynccontextmanager
+async def lifespan(app: "FastAPI"):
+    # On boot: ensure tables exist, then run the judge worker in-process
+    # (a daemon thread) so a single `run_web.py` serves and judges.
+    init_db()
+    start_inprocess_worker()
+    yield
+
+
+app = FastAPI(title="KTOJ", lifespan=lifespan)
 templates = Jinja2Templates(
     directory=str(Path(__file__).parent / "templates"))
 templates.env.filters["markdown"] = lambda text: md.markdown(
