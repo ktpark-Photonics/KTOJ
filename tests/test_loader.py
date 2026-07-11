@@ -41,6 +41,32 @@ def test_parse_problem_dir(tmp_path):
     assert cases[1]["is_sample"] is False
 
 
+def test_starter_code_loaded_when_present(tmp_path):
+    d = _make_problem_dir(tmp_path)
+    (d / "starter.py").write_text(
+        "a, b = map(int, input().split())\n# 여기에\n", encoding="utf-8")
+    meta, _ = parse_problem_dir(d)
+    assert meta["starter_code"] == "a, b = map(int, input().split())\n# 여기에\n"
+
+
+def test_starter_code_none_when_absent(tmp_path):
+    d = _make_problem_dir(tmp_path)  # no starter.py written
+    meta, _ = parse_problem_dir(d)
+    assert meta["starter_code"] is None
+
+
+def test_sync_problem_persists_starter_code(tmp_path):
+    d = _make_problem_dir(tmp_path)
+    (d / "starter.py").write_text("n = int(input())\n", encoding="utf-8")
+    engine = create_engine("sqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    with Session(engine) as s:
+        sync_problem(s, d)
+        s.commit()
+        p = s.query(Problem).one()
+        assert p.starter_code == "n = int(input())\n"
+
+
 def test_sync_problem_upserts(tmp_path):
     d = _make_problem_dir(tmp_path)
     engine = create_engine("sqlite:///:memory:")

@@ -27,6 +27,10 @@ def parse_problem_dir(path: Path) -> tuple[dict, list[dict]]:
                 meta[key] = value
     meta["statement"] = body.strip()
 
+    starter_file = path / "starter.py"
+    meta["starter_code"] = (starter_file.read_text(encoding="utf-8")
+                            if starter_file.exists() else None)
+
     cases: list[dict] = []
     tests_dir = path / "tests"
     in_files = sorted(tests_dir.glob("*.in"),
@@ -54,6 +58,7 @@ def sync_problem(session: Session, path: Path) -> Problem:
     problem.difficulty = meta["difficulty"]
     problem.time_limit_ms = meta["time_limit_ms"]
     problem.memory_limit_mb = meta["memory_limit_mb"]
+    problem.starter_code = meta["starter_code"]
     problem.testcases.clear()
     session.flush()
     for c in cases:
