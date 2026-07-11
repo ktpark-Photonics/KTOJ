@@ -17,7 +17,8 @@ def client(monkeypatch):
     TestingSession = sessionmaker(bind=engine, expire_on_commit=False)
     with TestingSession() as s:
         p = Problem(slug="a-plus-b", title="A+B", statement="# A+B\n합을 출력",
-                    difficulty="왕초보", time_limit_ms=1000, memory_limit_mb=128)
+                    difficulty="왕초보", time_limit_ms=1000, memory_limit_mb=128,
+                    starter_code="a, b = map(int, input().split())")
         p.testcases.append(TestCase(ordinal=1, input="1 2\n",
                                     expected_output="3\n", is_sample=True))
         s.add(p); s.commit()
@@ -36,6 +37,13 @@ def test_problem_detail_shows_statement_and_sample(client):
     assert r.status_code == 200
     assert "합을 출력" in r.text
     assert "1 2" in r.text  # 샘플 입력 노출
+
+
+def test_problem_detail_prefills_starter_code(client):
+    r = client.get("/problems/a-plus-b")
+    assert r.status_code == 200
+    # 제출 textarea에 입력 읽기 스타터 코드가 미리 채워져 있어야 한다
+    assert "map(int, input().split())" in r.text
 
 
 def test_submit_creates_pending_submission_and_redirects(client):

@@ -16,10 +16,13 @@
 {% endfor %}
 
 <h3>제출</h3>
+{% if problem.starter_code %}
+<p class="meta-line">입력을 읽는 코드는 채워져 있어요. 로직만 완성하면 됩니다.</p>
+{% endif %}
 <form method="post" action="/problems/{{ problem.slug }}/submit">
   <input type="hidden" name="language" value="python">
   <textarea name="source_code" rows="15"
-            placeholder="# Python 코드를 입력하세요"></textarea>
+            placeholder="# Python 코드를 입력하세요">{{ problem.starter_code or "" }}</textarea>
   <p><button type="submit">제출</button></p>
 </form>
 {% endblock %}

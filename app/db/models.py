@@ -18,6 +18,7 @@ class Problem(Base):
     difficulty: Mapped[str] = mapped_column(String(20))
     time_limit_ms: Mapped[int] = mapped_column(default=1000)
     memory_limit_mb: Mapped[int] = mapped_column(default=128)
+    starter_code: Mapped[str | None] = mapped_column(Text, default=None)
     testcases: Mapped[list["TestCase"]] = relationship(
         back_populates="problem", cascade="all, delete-orphan",
         order_by="TestCase.ordinal")
