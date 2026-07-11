@@ -12,6 +12,8 @@ SessionLocal = sessionmaker(bind=engine, class_=Session, expire_on_commit=False)
 
 def init_db() -> None:
     Base.metadata.create_all(engine)
+    with engine.connect() as conn:
+        conn.exec_driver_sql("PRAGMA journal_mode=WAL")
 
 
 @contextmanager

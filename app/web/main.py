@@ -7,6 +7,7 @@ from sqlalchemy import select
 
 from app.db.models import Problem, Submission
 from app.db.session import SessionLocal
+from app.judge.languages import LANGUAGES
 
 app = FastAPI(title="KTOJ")
 templates = Jinja2Templates(
@@ -41,6 +42,8 @@ def submit(slug: str, language: str = Form(...),
         problem = s.scalar(select(Problem).where(Problem.slug == slug))
         if problem is None:
             raise HTTPException(404, "problem not found")
+        if language not in LANGUAGES:
+            raise HTTPException(400, f"unsupported language: {language}")
         sub = Submission(problem_id=problem.id, language=language,
                          source_code=source_code)
         s.add(sub)

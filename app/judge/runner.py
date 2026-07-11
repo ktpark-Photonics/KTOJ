@@ -65,8 +65,9 @@ def run_code(language: Language, source_code: str, stdin_text: str,
         stdout = proc.stdout.decode("utf-8", "replace")
         stderr = proc.stderr.decode("utf-8", "replace")
 
-        if elapsed > time_limit_ms:
-            return RunResult("TLE", stdout, stderr, proc.returncode, elapsed)
+        # NOTE: TLE is enforced solely by the subprocess timeout above.
+        # time_ms is wall-clock (includes container/interpreter startup);
+        # accurate in-container timing is a future improvement.
         if proc.returncode == 137:   # 128 + SIGKILL, Docker OOM
             return RunResult("MLE", stdout, stderr, proc.returncode, elapsed)
         if proc.returncode != 0:

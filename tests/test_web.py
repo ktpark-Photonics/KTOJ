@@ -54,3 +54,10 @@ def test_submission_status_fragment_shows_verdict(client):
     assert r.status_code == 200
     # 아직 채점 전이므로 PENDING 표시
     assert "PENDING" in r.text
+
+
+def test_submit_unknown_language_rejected(client):
+    r = client.post("/problems/a-plus-b/submit",
+                    data={"language": "cobol", "source_code": "x"},
+                    follow_redirects=False)
+    assert r.status_code == 400
