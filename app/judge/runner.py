@@ -9,6 +9,7 @@ from app.judge.languages import Language
 
 # subprocess 자체가 멈추지 않도록 시간제한에 더하는 여유(초)
 _KILL_GRACE_S = 5
+_DOCKER_KILL_TIMEOUT_S = 10
 
 
 @dataclass
@@ -51,8 +52,12 @@ def run_code(language: Language, source_code: str, stdin_text: str,
                 cmd, input=stdin_text.encode("utf-8"),
                 capture_output=True, timeout=timeout_s + _KILL_GRACE_S)
         except subprocess.TimeoutExpired:
-            subprocess.run(["docker", "kill", container],
-                           capture_output=True)
+            try:
+                subprocess.run(["docker", "kill", container],
+                               capture_output=True,
+                               timeout=_DOCKER_KILL_TIMEOUT_S)
+            except subprocess.TimeoutExpired:
+                pass
             elapsed = int((time.perf_counter() - start) * 1000)
             return RunResult("TLE", "", "", None, elapsed)
 
@@ -68,7 +73,11 @@ def run_code(language: Language, source_code: str, stdin_text: str,
             return RunResult("RE", stdout, stderr, proc.returncode, elapsed)
         return RunResult("OK", stdout, stderr, 0, elapsed)
     except Exception as exc:  # noqa: BLE001 - 어떤 시스템 오류든 IE로
-        subprocess.run(["docker", "kill", container], capture_output=True)
+        try:
+            subprocess.run(["docker", "kill", container], capture_output=True,
+                           timeout=_DOCKER_KILL_TIMEOUT_S)
+        except subprocess.TimeoutExpired:
+            pass
         return RunResult("IE", "", str(exc), None, 0)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
