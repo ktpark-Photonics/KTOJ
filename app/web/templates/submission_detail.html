@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}제출 #{{ sub.id }} - KTOJ{% endblock %}
+{% block content %}
+<p><a href="/problems/{{ problem.slug }}">← {{ problem.title }}</a></p>
+<h2>제출 #{{ sub.id }}</h2>
+<p>문제: {{ problem.title }} / 언어: {{ sub.language }}</p>
+{% include "_submission_status.html" %}
+<h3>제출한 코드</h3>
+<pre>{{ sub.source_code }}</pre>
+{% endblock %}

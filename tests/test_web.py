@@ -36,3 +36,21 @@ def test_problem_detail_shows_statement_and_sample(client):
     assert r.status_code == 200
     assert "합을 출력" in r.text
     assert "1 2" in r.text  # 샘플 입력 노출
+
+
+def test_submit_creates_pending_submission_and_redirects(client):
+    r = client.post("/problems/a-plus-b/submit",
+                    data={"language": "python",
+                          "source_code": "print(3)"},
+                    follow_redirects=False)
+    assert r.status_code == 303
+    assert r.headers["location"].startswith("/submissions/")
+
+
+def test_submission_status_fragment_shows_verdict(client):
+    r = client.post("/problems/a-plus-b/submit",
+                    data={"language": "python", "source_code": "print(3)"},
+                    follow_redirects=True)
+    assert r.status_code == 200
+    # 아직 채점 전이므로 PENDING 표시
+    assert "PENDING" in r.text
