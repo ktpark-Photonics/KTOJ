@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}내 제출 이력 - KTOJ{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>내 제출 이력</h1>
+  <p>지금까지 낸 제출을 최근 순으로 모아봤어요.</p>
+</div>
+{% if rows %}
+<div class="list">
+  {% for r in rows %}
+  <a class="row" href="/submissions/{{ r.id }}">
+    <span class="num">#{{ r.id }}</span>
+    <span class="title">{{ r.title }}</span>
+    <span class="vpill {{ 'vp-ok' if r.status == 'AC' else ('vp-wait' if r.status in ['PENDING', 'JUDGING'] else 'vp-bad') }}">{{ r.status }}{% if r.failed_case_no %} · {{ r.failed_case_no }}번{% endif %}</span>
+    <span class="htime">{% if r.time_ms is not none %}{{ r.time_ms }} ms{% else %}—{% endif %}</span>
+    <span class="hwhen">{{ r.created_at.strftime('%m-%d %H:%M') }}</span>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <div class="em">📭</div>
+  <h2>아직 제출이 없어요</h2>
+  <p>문제를 하나 골라 첫 제출을 해볼까요?</p>
+  <a class="btn" href="/">문제 보러 가기</a>
+</div>
+{% endif %}
+{% endblock %}

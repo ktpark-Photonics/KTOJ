@@ -1,10 +1,19 @@
 {% extends "base.html" %}
 {% block title %}제출 #{{ sub.id }} - KTOJ{% endblock %}
 {% block content %}
-<p><a class="back" href="/problems/{{ problem.slug }}">← {{ problem.title }}</a></p>
-<h2>제출 #{{ sub.id }}</h2>
-<p class="meta-line">문제: {{ problem.title }} / 언어: {{ sub.language }}</p>
-{% include "_submission_status.html" %}
-<h3>제출한 코드</h3>
-<pre>{{ sub.source_code }}</pre>
+<p><a class="backlink" href="/submissions">← 내 제출 이력</a></p>
+<div class="card">
+  <div class="detail-title" style="font-size:20px;">제출 #{{ sub.id }} · {{ problem.title }}</div>
+  {% include "_submission_status.html" %}
+  <h4 class="muted" style="margin:16px 0 4px;">제출한 코드</h4>
+  <div class="editor">
+    <div class="bar">
+      <span class="dot" style="background:#ff5f57"></span>
+      <span class="dot" style="background:#febc2e"></span>
+      <span class="dot" style="background:#28c840"></span>
+      <span class="fname">main.py</span>
+    </div>
+    <pre class="code">{{ sub.source_code }}</pre>
+  </div>
+</div>
 {% endblock %}

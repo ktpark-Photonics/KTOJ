@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 {% block title %}문제 목록 - KTOJ{% endblock %}
 {% block content %}
-<h2>문제 목록</h2>
-<table>
-  <thead>
-    <tr><th>#</th><th>제목</th><th>난이도</th></tr>
-  </thead>
-  <tbody>
+<div class="page-head">
+  <h1>오늘도 한 문제 풀어볼까요? 🌱</h1>
+  <p>왕초보부터 차근차근. 입력 코드는 미리 채워드려요.</p>
+</div>
+<div class="list">
   {% for p in problems %}
-    <tr>
-      <td class="num">{{ p.id }}</td>
-      <td><a href="/problems/{{ p.slug }}">{{ p.title }}</a></td>
-      <td><span class="badge {{ 'diff-easy' if p.difficulty == '왕초보' else 'diff-mid' }}">{{ p.difficulty }}</span></td>
-    </tr>
+  <a class="row" href="/problems/{{ p.slug }}">
+    <span class="num">{{ p.id }}</span>
+    <span class="title">{{ p.title }}</span>
+    {% if p.id in solved %}<span class="solved">✓ 해결</span>{% endif %}
+    <span class="badge {{ 'b-easy' if p.difficulty == '왕초보' else 'b-mid' }}">{{ '🌱' if p.difficulty == '왕초보' else '🚀' }} {{ p.difficulty }}</span>
+    <span class="go">풀기 →</span>
+  </a>
   {% endfor %}
-  </tbody>
-</table>
+</div>
 {% endblock %}

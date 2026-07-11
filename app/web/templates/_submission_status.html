@@ -1,14 +1,35 @@
 {% set pending = sub.status in ["PENDING", "JUDGING"] %}
-<div id="status"
+{% set ok = sub.status == "AC" %}
+{% set labels = {"WA": "틀렸습니다 (WA)", "TLE": "시간 초과 (TLE)",
+                 "MLE": "메모리 초과 (MLE)", "RE": "런타임 에러 (RE)",
+                 "CE": "컴파일 에러 (CE)", "IE": "채점 오류 (IE)"} %}
+<div id="status" class="verdict-{{ sub.status }}"
      {% if pending %}
      hx-get="/submissions/{{ sub.id }}/status"
      hx-trigger="load delay:2s"
      hx-swap="outerHTML"
      {% endif %}>
-  <p><span class="verdict verdict-{{ sub.status }}">{{ sub.status }}</span></p>
-  {% if not pending %}
-    {% if sub.time_ms is not none %}<p class="meta-line">실행시간: {{ sub.time_ms }} ms</p>{% endif %}
-    {% if sub.failed_case_no %}<p class="meta-line">틀린 테스트케이스: {{ sub.failed_case_no }}번</p>{% endif %}
+  {% if pending %}
+    <div class="verdict-card wait">
+      <div class="vicon">⏳</div>
+      <div class="vtext">
+        <div class="big">채점 중…</div>
+        <div class="sub">잠시만요, 곧 결과가 나와요.</div>
+      </div>
+    </div>
+  {% else %}
+    <div class="verdict-card {{ 'ok' if ok else 'bad' }}">
+      <div class="vicon">{{ '✓' if ok else '✕' }}</div>
+      <div class="vtext">
+        <div class="big">{{ '맞았습니다! (AC)' if ok else labels.get(sub.status, sub.status) }}</div>
+        <div class="sub">{{ '모든 테스트케이스를 통과했어요. 🎉' if ok else '아쉬워요, 다시 도전해 볼까요?' }}</div>
+      </div>
+    </div>
+    <div class="metrics">
+      {% if sub.time_ms is not none %}<div class="metric"><div class="k">실행 시간</div><div class="v">{{ sub.time_ms }} ms</div></div>{% endif %}
+      {% if sub.failed_case_no %}<div class="metric"><div class="k">틀린 케이스</div><div class="v">{{ sub.failed_case_no }}번</div></div>{% endif %}
+      <div class="metric"><div class="k">언어</div><div class="v">{{ sub.language }}</div></div>
+    </div>
     {% if sub.message %}<pre>{{ sub.message }}</pre>{% endif %}
   {% endif %}
 </div>
