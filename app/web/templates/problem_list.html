@@ -3,13 +3,17 @@
 {% block content %}
 <h2>문제 목록</h2>
 <table>
-  <tr><th>#</th><th>제목</th><th>난이도</th></tr>
+  <thead>
+    <tr><th>#</th><th>제목</th><th>난이도</th></tr>
+  </thead>
+  <tbody>
   {% for p in problems %}
-  <tr>
-    <td>{{ p.id }}</td>
-    <td><a href="/problems/{{ p.slug }}">{{ p.title }}</a></td>
-    <td><span class="badge">{{ p.difficulty }}</span></td>
-  </tr>
+    <tr>
+      <td class="num">{{ p.id }}</td>
+      <td><a href="/problems/{{ p.slug }}">{{ p.title }}</a></td>
+      <td><span class="badge {{ 'diff-easy' if p.difficulty == '왕초보' else 'diff-mid' }}">{{ p.difficulty }}</span></td>
+    </tr>
   {% endfor %}
+  </tbody>
 </table>
 {% endblock %}

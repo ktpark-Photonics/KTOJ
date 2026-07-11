@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 {% block title %}{{ problem.title }} - KTOJ{% endblock %}
 {% block content %}
-<p><a href="/">← 목록</a></p>
-<span class="badge">{{ problem.difficulty }}</span>
-<span class="badge">시간 {{ problem.time_limit_ms }}ms</span>
-<span class="badge">메모리 {{ problem.memory_limit_mb }}MB</span>
-<div>{{ problem.statement | markdown | safe }}</div>
+<p><a class="back" href="/">← 목록</a></p>
+<h2>{{ problem.title }}</h2>
+<div class="badges">
+  <span class="badge {{ 'diff-easy' if problem.difficulty == '왕초보' else 'diff-mid' }}">{{ problem.difficulty }}</span>
+  <span class="badge meta">시간 {{ problem.time_limit_ms }}ms</span>
+  <span class="badge meta">메모리 {{ problem.memory_limit_mb }}MB</span>
+</div>
+<div class="statement">{{ problem.statement | markdown | safe }}</div>
 
 {% for c in samples %}
 <h4>예제 입력 {{ loop.index }}</h4><pre>{{ c.input }}</pre>

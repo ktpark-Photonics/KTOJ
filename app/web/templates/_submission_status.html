@@ -5,10 +5,10 @@
      hx-trigger="load delay:2s"
      hx-swap="outerHTML"
      {% endif %}>
-  <p>상태: <span class="verdict-{{ sub.status }}">{{ sub.status }}</span></p>
+  <p><span class="verdict verdict-{{ sub.status }}">{{ sub.status }}</span></p>
   {% if not pending %}
-    {% if sub.time_ms is not none %}<p>실행시간: {{ sub.time_ms }} ms</p>{% endif %}
-    {% if sub.failed_case_no %}<p>틀린 테스트케이스: {{ sub.failed_case_no }}번</p>{% endif %}
+    {% if sub.time_ms is not none %}<p class="meta-line">실행시간: {{ sub.time_ms }} ms</p>{% endif %}
+    {% if sub.failed_case_no %}<p class="meta-line">틀린 테스트케이스: {{ sub.failed_case_no }}번</p>{% endif %}
     {% if sub.message %}<pre>{{ sub.message }}</pre>{% endif %}
   {% endif %}
 </div>
