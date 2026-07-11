@@ -40,6 +40,14 @@ def run_code(language: Language, source_code: str, stdin_text: str,
             "--memory-swap", f"{memory_limit_mb}m",
             "--pids-limit", "64",
             "--cpus", "1",
+            # Hardening: drop all Linux capabilities, forbid privilege
+            # escalation, and make the root FS read-only. A small writable
+            # tmpfs at /tmp lets legitimate programs use scratch space
+            # without persisting anything or touching the host.
+            "--cap-drop", "ALL",
+            "--security-opt", "no-new-privileges",
+            "--read-only",
+            "--tmpfs", "/tmp:size=16m,mode=1777",
             "-i",
             "-v", f"{tmp}:/sandbox:ro",
             language.image,
