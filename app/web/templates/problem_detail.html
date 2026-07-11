@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ problem.title }} - KTOJ{% endblock %}
+{% block content %}
+<p><a href="/">← 목록</a></p>
+<span class="badge">{{ problem.difficulty }}</span>
+<span class="badge">시간 {{ problem.time_limit_ms }}ms</span>
+<span class="badge">메모리 {{ problem.memory_limit_mb }}MB</span>
+<div>{{ problem.statement | markdown | safe }}</div>
+
+{% for c in samples %}
+<h4>예제 입력 {{ loop.index }}</h4><pre>{{ c.input }}</pre>
+<h4>예제 출력 {{ loop.index }}</h4><pre>{{ c.expected_output }}</pre>
+{% endfor %}
+
+<h3>제출</h3>
+<form method="post" action="/problems/{{ problem.slug }}/submit">
+  <input type="hidden" name="language" value="python">
+  <textarea name="source_code" rows="15"
+            placeholder="# Python 코드를 입력하세요"></textarea>
+  <p><button type="submit">제출</button></p>
+</form>
+{% endblock %}

@@ -1,0 +1,11 @@
+FROM python:3.11-slim
+
+# 비특권 사용자로 실행 (uid 1000)
+RUN useradd --create-home --uid 1000 runner
+USER runner
+WORKDIR /sandbox
+
+# .pyc 쓰기 방지, 출력 버퍼링 해제
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+
+CMD ["python", "-B", "/sandbox/main.py"]
