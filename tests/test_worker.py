@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import Base, Problem, Submission, TestCase
 from app.judge.runner import RunResult
-from app.judge.worker import claim_next, judge_submission
+from app.judge.worker import claim_next, judge_submission, process_once
 
 
 def _seed(session):
@@ -91,3 +91,51 @@ def test_claim_next_marks_judging():
     assert claimed.id == sub.id
     assert claimed.status == "JUDGING"
     assert claim_next(s) is None
+
+
+def test_time_ms_is_max_across_cases():
+    s = _fresh_session()
+    p = _seed(s)
+    sub = Submission(problem_id=p.id, language="python",
+                     source_code="a,b=map(int,input().split());print(a+b)")
+    s.add(sub); s.commit()
+    times = iter([10, 42])
+
+    def fake_run(language, source_code, stdin_text, time_limit_ms,
+                 memory_limit_mb, run_id):
+        total = sum(int(x) for x in stdin_text.split())
+        return RunResult("OK", f"{total}\n", "", 0, next(times))
+
+    judge_submission(sub, p, fake_run)
+    assert sub.status == "AC"
+    assert sub.time_ms == 42
+
+
+def test_runtime_error_status_maps_to_re():
+    s = _fresh_session()
+    p = _seed(s)
+    sub = Submission(problem_id=p.id, language="python", source_code="x=1")
+    s.add(sub); s.commit()
+
+    def fake_run(*a, **k):
+        return RunResult("RE", "", "boom", 1, 3)
+
+    judge_submission(sub, p, fake_run)
+    assert sub.status == "RE"
+    assert sub.failed_case_no == 1
+
+
+def test_process_once_isolates_runner_exception():
+    s = _fresh_session()
+    p = _seed(s)
+    sub = Submission(problem_id=p.id, language="python", source_code="x=1")
+    s.add(sub); s.commit()
+
+    def boom(*a, **k):
+        raise RuntimeError("runner exploded")
+
+    worked = process_once(s, boom)
+    assert worked is True
+    s.refresh(sub)
+    assert sub.status == "IE"
+    assert "runner exploded" in (sub.message or "")

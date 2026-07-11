@@ -38,26 +38,33 @@ def judge_submission(submission: Submission, problem: Problem,
 
     language = get_language(submission.language)
     max_time = 0
+    max_memory = None
     for case in problem.testcases:
         result = run_fn(language, submission.source_code, case.input,
                         problem.time_limit_ms, problem.memory_limit_mb,
                         run_id=f"{submission.id}-{case.ordinal}")
         max_time = max(max_time, result.time_ms or 0)
+        if result.memory_kb is not None:
+            max_memory = (result.memory_kb if max_memory is None
+                          else max(max_memory, result.memory_kb))
         if result.status != "OK":
             submission.status = _STATUS_TO_VERDICT.get(result.status,
                                                        verdicts.IE)
             submission.failed_case_no = case.ordinal
             submission.time_ms = max_time
+            submission.memory_kb = max_memory
             submission.message = (result.stderr or "")[:2000]
             return
         if not outputs_match(result.stdout, case.expected_output):
             submission.status = verdicts.WA
             submission.failed_case_no = case.ordinal
             submission.time_ms = max_time
+            submission.memory_kb = max_memory
             return
 
     submission.status = verdicts.AC
     submission.time_ms = max_time
+    submission.memory_kb = max_memory
     submission.failed_case_no = None
 
 
