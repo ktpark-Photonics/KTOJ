@@ -24,6 +24,7 @@ class Problem(Base):
 
 
 class TestCase(Base):
+    __test__ = False
     __tablename__ = "testcases"
     id: Mapped[int] = mapped_column(primary_key=True)
     problem_id: Mapped[int] = mapped_column(ForeignKey("problems.id"))
