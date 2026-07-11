@@ -1,28 +1,43 @@
 {% extends "base.html" %}
 {% block title %}{{ problem.title }} - KTOJ{% endblock %}
 {% block content %}
-<p><a class="back" href="/">← 목록</a></p>
-<h2>{{ problem.title }}</h2>
-<div class="badges">
-  <span class="badge {{ 'diff-easy' if problem.difficulty == '왕초보' else 'diff-mid' }}">{{ problem.difficulty }}</span>
-  <span class="badge meta">시간 {{ problem.time_limit_ms }}ms</span>
-  <span class="badge meta">메모리 {{ problem.memory_limit_mb }}MB</span>
+<p><a class="backlink" href="/">← 목록으로</a></p>
+<div class="card">
+  <div class="detail-title">{{ problem.title }}</div>
+  <div class="badgerow">
+    <span class="badge {{ 'b-easy' if problem.difficulty == '왕초보' else 'b-mid' }}">{{ '🌱' if problem.difficulty == '왕초보' else '🚀' }} {{ problem.difficulty }}</span>
+    <span class="badge b-meta">⏱ {{ problem.time_limit_ms }}ms</span>
+    <span class="badge b-meta">🖥 {{ problem.memory_limit_mb }}MB</span>
+  </div>
+  <div class="statement">{{ problem.statement | markdown | safe }}</div>
+  {% for c in samples %}
+  <div class="io-grid">
+    <div><div class="lbl">예제 입력 {{ loop.index }}</div><pre>{{ c.input }}</pre></div>
+    <div><div class="lbl">예제 출력 {{ loop.index }}</div><pre>{{ c.expected_output }}</pre></div>
+  </div>
+  {% endfor %}
 </div>
-<div class="statement">{{ problem.statement | markdown | safe }}</div>
-
-{% for c in samples %}
-<h4>예제 입력 {{ loop.index }}</h4><pre>{{ c.input }}</pre>
-<h4>예제 출력 {{ loop.index }}</h4><pre>{{ c.expected_output }}</pre>
-{% endfor %}
-
-<h3>제출</h3>
-{% if problem.starter_code %}
-<p class="meta-line">입력을 읽는 코드는 채워져 있어요. 로직만 완성하면 됩니다.</p>
-{% endif %}
-<form method="post" action="/problems/{{ problem.slug }}/submit">
-  <input type="hidden" name="language" value="python">
-  <textarea name="source_code" rows="15"
-            placeholder="# Python 코드를 입력하세요">{{ problem.starter_code or "" }}</textarea>
-  <p><button type="submit">제출</button></p>
-</form>
+<div class="card">
+  <h3 style="margin:0 0 6px;">제출</h3>
+  {% if problem.starter_code %}
+  <div class="hint">💡 입력을 읽는 코드는 채워져 있어요. 로직만 완성하면 됩니다.</div>
+  {% endif %}
+  <form method="post" action="/problems/{{ problem.slug }}/submit">
+    <input type="hidden" name="language" value="python">
+    <div class="editor">
+      <div class="bar">
+        <span class="dot" style="background:#ff5f57"></span>
+        <span class="dot" style="background:#febc2e"></span>
+        <span class="dot" style="background:#28c840"></span>
+        <span class="fname">main.py</span>
+      </div>
+      <textarea name="source_code" rows="14" spellcheck="false"
+        placeholder="# Python 코드를 입력하세요">{{ problem.starter_code or "" }}</textarea>
+    </div>
+    <div class="actions">
+      <button class="btn" type="submit">제출하기</button>
+      <span class="tip">채점은 몇 초 안에 끝나요.</span>
+    </div>
+  </form>
+</div>
 {% endblock %}
