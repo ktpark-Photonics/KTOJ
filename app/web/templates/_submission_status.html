@@ -3,6 +3,12 @@
 {% set labels = {"WA": "틀렸습니다 (WA)", "TLE": "시간 초과 (TLE)",
                  "MLE": "메모리 초과 (MLE)", "RE": "런타임 에러 (RE)",
                  "CE": "컴파일 에러 (CE)", "IE": "채점 오류 (IE)"} %}
+{% set subs = {"WA": "출력이 정답과 달라요.",
+               "TLE": "제한 시간 안에 끝나지 못했어요.",
+               "MLE": "메모리를 너무 많이 썼어요.",
+               "RE": "코드가 실행 도중 오류로 멈췄어요 (오타 등).",
+               "CE": "코드에 문법 오류가 있어요.",
+               "IE": "채점 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요."} %}
 <div id="status" class="verdict-{{ sub.status }}"
      {% if pending %}
      hx-get="/submissions/{{ sub.id }}/status"
@@ -22,12 +28,12 @@
       <div class="vicon">{{ '✓' if ok else '✕' }}</div>
       <div class="vtext">
         <div class="big">{{ '맞았습니다! (AC)' if ok else labels.get(sub.status, sub.status) }}</div>
-        <div class="sub">{{ '모든 테스트케이스를 통과했어요. 🎉' if ok else '아쉬워요, 다시 도전해 볼까요?' }}</div>
+        <div class="sub">{{ '모든 테스트케이스를 통과했어요. 🎉' if ok else subs.get(sub.status, '아쉬워요, 다시 도전해 볼까요?') }}</div>
       </div>
     </div>
     <div class="metrics">
       {% if sub.time_ms is not none %}<div class="metric"><div class="k">실행 시간</div><div class="v">{{ sub.time_ms }} ms</div></div>{% endif %}
-      {% if sub.failed_case_no %}<div class="metric"><div class="k">틀린 케이스</div><div class="v">{{ sub.failed_case_no }}번</div></div>{% endif %}
+      {% if sub.failed_case_no %}<div class="metric"><div class="k">{{ '틀린 케이스' if sub.status == 'WA' else '실패한 케이스' }}</div><div class="v">{{ sub.failed_case_no }}번</div></div>{% endif %}
       <div class="metric"><div class="k">언어</div><div class="v">{{ sub.language }}</div></div>
     </div>
     {% if sub.message %}<pre>{{ sub.message }}</pre>{% endif %}
