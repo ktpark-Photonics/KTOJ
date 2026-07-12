@@ -36,6 +36,8 @@
       {% if sub.failed_case_no %}<div class="metric"><div class="k">{{ '틀린 케이스' if sub.status == 'WA' else '실패한 케이스' }}</div><div class="v">{{ sub.failed_case_no }}번</div></div>{% endif %}
       <div class="metric"><div class="k">언어</div><div class="v">{{ sub.language }}</div></div>
     </div>
+    {% set hint = hint_for(sub.status, sub.message) %}
+    {% if hint %}<div class="hint hint-fail">💡 {{ hint }}</div>{% endif %}
     {% if sub.message %}<pre>{{ sub.message }}</pre>{% endif %}
   {% endif %}
 </div>
