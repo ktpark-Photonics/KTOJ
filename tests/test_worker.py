@@ -139,3 +139,30 @@ def test_process_once_isolates_runner_exception():
     s.refresh(sub)
     assert sub.status == "IE"
     assert "runner exploded" in (sub.message or "")
+
+
+def test_problem_without_testcases_gives_ie():
+    s = _fresh_session()
+    p = Problem(slug="empty", title="Empty", statement="", difficulty="왕초보",
+                time_limit_ms=1000, memory_limit_mb=128)
+    s.add(p); s.commit()
+    sub = Submission(problem_id=p.id, language="python", source_code="print(1)")
+    s.add(sub); s.commit()
+
+    def must_not_run(*a, **k):
+        raise AssertionError("runner should not run without testcases")
+
+    judge_submission(sub, p, must_not_run)
+    assert sub.status == "IE"
+
+
+def test_indentation_error_message_preserves_name():
+    s = _fresh_session()
+    p = _seed(s)
+    sub = Submission(problem_id=p.id, language="python",
+                     source_code="if True:\npass")  # IndentationError at compile
+    s.add(sub); s.commit()
+
+    judge_submission(sub, p, lambda *a, **k: None)
+    assert sub.status == "CE"
+    assert "IndentationError" in (sub.message or "")
