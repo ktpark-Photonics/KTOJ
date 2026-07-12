@@ -1,0 +1,3 @@
+s = input().strip()
+c = input().strip()
+# 여기에 코드를 작성하세요
