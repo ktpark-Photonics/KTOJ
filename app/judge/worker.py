@@ -24,7 +24,9 @@ def _syntax_ok(language_name: str, source_code: str) -> tuple[bool, str]:
         try:
             compile(source_code, "<submission>", "exec")
         except SyntaxError as exc:
-            return False, f"SyntaxError: {exc}"
+            # Preserve the concrete error name (SyntaxError / IndentationError)
+            # so hint matching can distinguish them.
+            return False, f"{type(exc).__name__}: {exc}"
     return True, ""
 
 
@@ -34,6 +36,12 @@ def judge_submission(submission: Submission, problem: Problem,
     if not ok:
         submission.status = verdicts.CE
         submission.message = msg
+        return
+
+    if not problem.testcases:
+        # A problem with no testcases must not silently pass as AC.
+        submission.status = verdicts.IE
+        submission.message = "no testcases for this problem"
         return
 
     language = get_language(submission.language)
@@ -99,6 +107,12 @@ def run_forever(poll_interval_s: float = 2.0) -> None:
         session = SessionLocal()
         try:
             worked = process_once(session)
+        except Exception as exc:  # noqa: BLE001
+            # A transient error (e.g. SQLite write contention) must cost one
+            # poll cycle, never kill the only worker thread.
+            session.rollback()
+            print(f"[worker] poll cycle error (continuing): {exc}")
+            worked = False
         finally:
             session.close()
         if not worked:
