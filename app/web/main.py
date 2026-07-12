@@ -10,6 +10,7 @@ from app.db.models import Problem, Submission
 from app.db.session import SessionLocal, init_db
 from app.judge import verdicts
 from app.judge.background import start_inprocess_worker
+from app.judge.hints import hint_for
 from app.judge.languages import LANGUAGES
 
 LAST_PROBLEM_COOKIE = "last_problem"
@@ -29,6 +30,7 @@ templates = Jinja2Templates(
     directory=str(Path(__file__).parent / "templates"))
 templates.env.filters["markdown"] = lambda text: md.markdown(
     text or "", extensions=["fenced_code"])
+templates.env.globals["hint_for"] = hint_for
 
 
 @app.get("/", response_class=HTMLResponse)
